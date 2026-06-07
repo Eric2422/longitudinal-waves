@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+/// A single particle in a longitudinal wave, each connected to other particles by linear springs.
 struct Particle {
     mass: f64,
     position: Vec<f64>,
@@ -23,5 +24,17 @@ impl Particle {
             acceleration: vec![0.0, 0.0, 0.0],
             linked_masses: HashMap::new(),
         }
+    }
+
+    pub fn builder() -> ParticleBuilder {
+        ParticleBuilder::new();
+    }
+}
+
+pub struct ParticleBuilder {}
+
+impl ParticleBuilder {
+    pub fn new() -> ParticleBuilder {
+        ParticleBuilder {}
     }
 }
