@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-/// A single particle in a longitudinal wave, each connected to other particles by linear springs.
+/// A single particle in a longitudinal wave, each connected to other particles
+/// by linear springs.
 struct Particle {
     mass: f64,
     position: Vec<f64>,
@@ -16,6 +17,15 @@ impl ToString for Particle {
 }
 
 impl Particle {
+    /// Create a new [`Particle`] with a mass of 1.0 kg, position of (0.0, 0.0,
+    /// 0.0), velocity of <0.0, 0.0, 0.0>, acceleration of <0.0, 0.0, 0.0>, and
+    /// no linked masses.
+    ///
+    /// # Return
+    ///
+    /// A new [`Particle`] with a mass of 1.0 kg, position of (0.0, 0.0,
+    /// 0.0), velocity of <0.0, 0.0, 0.0>, acceleration of <0.0, 0.0, 0.0>, and
+    /// no linked masses.
     pub fn new() -> Particle {
         Particle {
             mass: 1.0,
@@ -26,11 +36,18 @@ impl Particle {
         }
     }
 
+    /// Get a new [`ParticleBuilder`].
+    ///
+    /// # Return
+    ///
+    /// A new [`ParticleBuilder`].
     pub fn builder() -> ParticleBuilder {
         ParticleBuilder::new()
     }
 }
 
+
+/// The builder for the [`Particle`] class.
 pub struct ParticleBuilder {}
 
 impl ParticleBuilder {
