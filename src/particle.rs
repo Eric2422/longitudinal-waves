@@ -1,26 +1,66 @@
 use std::collections::HashMap;
-use std::{
-    sync::atomic::{AtomicUsize, Ordering},
-    thread,
-};
+use std::hash::Hash;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Counter for the [`id`](Particle::id) property of the [`Particle`] class.
 static PARTICLE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 /// A single particle in a longitudinal wave, each connected to other particles
 /// by linear springs.
-struct Particle {
+pub struct Particle {
     id: usize,
+    /// The mass of this particle in kilograms (kg).
     mass: f64,
+    /// The position of this particle in meters (m) as a vector in 3D space.
     position: Vec<f64>,
+    /// The velocity of this particle in meters per second (m/s) as a vector in
+    /// 3D space.
     velocity: Vec<f64>,
+    /// The acceleration of this particle in meters per second squared (m/s²) as
+    /// a vector in 3D space.
     acceleration: Vec<f64>,
+    /// The masses that this particle is linked to by springs and the spring
+    /// constant of the respective spring in newtons per meters (n/m).
     linked_masses: HashMap<Particle, f64>,
 }
 
 impl ToString for Particle {
     fn to_string(&self) -> String {
         format!("{}, {:?}", self.mass, self.position)
+    }
+}
+
+impl PartialEq for Particle {
+    /// Check if this [`Particle`] has the same [`id`](Particle::id) as the
+    /// other [`Particle`].
+    ///
+    /// # Arguments
+    ///
+    /// * other - The other [`Particle`] to compare against.
+    ///
+    /// # Return
+    ///
+    /// `true` if and only if this [`Particle`] has the same
+    /// [`id`](Particle::id) as the other [`Particle`].
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Eq for Particle {}
+
+impl Hash for Particle {
+    /// Generate a hash based on based on [`Particle::id`].
+    ///
+    /// # Arguments
+    ///
+    /// * state - The `Hasher` to generate a [`Hash`] from this [`Particle`].
+    ///
+    /// # Return
+    ///
+    /// A hash based on based on [`Particle::id`].
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
     }
 }
 
@@ -92,5 +132,7 @@ impl ParticleBuilder {
         self.acceleration = vec![x, y, z];
     }
 
-    pub fn add_linked_mass(mut self, particle: Particle) {}
+    pub fn add_linked_mass(mut self, particle: Particle, spring_constant: f64) {
+        self.linked_masses.insert(particle, spring_constant);
+    }
 }
