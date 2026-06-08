@@ -31,7 +31,7 @@ impl ToString for Particle {
 }
 
 impl PartialEq for Particle {
-    /// Check if this [`Particle`] is considered equivalent to another
+    /// Checks if this [`Particle`] is considered equivalent to another
     /// [`Particle`], returning `true` if and only if they have the same [`id`].
     ///
     /// [`id`]: Particle::id
@@ -43,19 +43,18 @@ impl PartialEq for Particle {
 impl Eq for Particle {}
 
 impl Hash for Particle {
-    /// Generate a hash based on based on [`Particle::id`].
+    /// Generates a hash based on based on [`Particle::id`].
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.id.hash(state);
     }
 }
 
 impl Particle {
-    /// Create a new [`Particle`] with a mass of 1.0 kg, position of (0.0, 0.0,
+    /// Creates a new [`Particle`] with a mass of 1.0 kg, position of (0.0, 0.0,
     /// 0.0), velocity of <0.0, 0.0, 0.0> m/s, acceleration of <0.0, 0.0, 0.0>
     /// m/s², and no linked particles.
     ///
-    /// The value stored in [`PARTICLE_COUNTER`] will increment by one (1) after
-    /// calling.
+    /// Increments the value stored in [`PARTICLE_COUNTER`] after calling.
     pub fn new() -> Particle {
         Particle {
             id: PARTICLE_COUNTER.fetch_add(1, Ordering::SeqCst),
@@ -94,8 +93,8 @@ pub struct ParticleBuilder {
 }
 
 impl ParticleBuilder {
-    /// Instantiate and return a new [`ParticleBuilder`] with a mass of 1.0 kg,
-    /// position of (0.0, 0.0, 0.0) m, velocity of <0.0, 0.0, 0.0> m/s,
+    /// Instantiates and returns a new [`ParticleBuilder`] with a mass of 1.0
+    /// kg, position of (0.0, 0.0, 0.0) m, velocity of <0.0, 0.0, 0.0> m/s,
     /// acceleration of <0.0, 0.0, 0.0> m/s², and no linked [`Particle`]s.
     pub fn new() -> ParticleBuilder {
         ParticleBuilder {
@@ -107,21 +106,21 @@ impl ParticleBuilder {
         }
     }
 
-    /// Set the [`mass`] of the [`Particle`] in kilograms (kg).
+    /// Sets the [`mass`] of the [`Particle`] in kilograms (kg).
     ///
     /// [`mass`]: Particle::mass
     pub fn set_mass(mut self, mass: f64) {
         self.mass = mass;
     }
 
-    /// Set the [`position`] of the [`Particle`] as a 3D vector in meters (m).
+    /// Sets the [`position`] of the [`Particle`] as a 3D vector in meters (m).
     ///
     /// [`position`]: Particle::position
     pub fn set_position(mut self, x: f64, y: f64, z: f64) {
         self.position = vec![x, y, z];
     }
 
-    /// Set the [`velocity`] of the [`Particle`] as a 3D vector in meters per
+    /// Sets the [`velocity`] of the [`Particle`] as a 3D vector in meters per
     /// second (m/s).
     ///
     /// [`velocity`]: Particle::velocity
@@ -129,7 +128,7 @@ impl ParticleBuilder {
         self.velocity = vec![x, y, z];
     }
 
-    /// Set the [`acceleration`] of the [`Particle`] as a 3D vector in meters
+    /// Sets the [`acceleration`] of the [`Particle`] as a 3D vector in meters
     /// per second squared (m/s²).
     ///
     /// [`acceleration`]: Particle::acceleration
@@ -137,8 +136,8 @@ impl ParticleBuilder {
         self.acceleration = vec![x, y, z];
     }
 
-    /// Link this [`Particle`] to another [`Particle`] with a spring of constant
-    /// `spring_constant` in newtons per meter (N/m), updating
+    /// Links this [`Particle`] to another [`Particle`] with a spring of
+    /// constant `spring_constant` in newtons per meter (N/m), updating
     /// [`linked_masses`] accordingly.
     ///
     /// If the given [`Particle`] already exists in [`linked_masses`], the
