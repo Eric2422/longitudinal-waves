@@ -1,6 +1,27 @@
+use core::error;
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::Hash;
+use std::io;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::thread::Builder;
+
+use thiserror::Error;
+
+
+#[derive(Error, Debug)]
+pub enum BuilderError {
+    #[error("Mass {0}, but should be positive.")]
+    Mass(f64),
+
+    #[error(
+        "Linked particle {:?} has spring constant {} N/m but should be positive.",
+        0,
+        1
+    )]
+    Spring(Particle, f64),
+}
+
 
 /// Counter for the [`id`](Particle::id) property of the [`Particle`] class.
 static PARTICLE_COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -30,6 +51,19 @@ impl ToString for Particle {
     }
 }
 
+impl Debug for Particle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Particle")
+            .field("id", &self.id)
+            .field("mass", &self.mass)
+            .field("position", &self.position)
+            .field("velocity", &self.velocity)
+            .field("acceleration", &self.acceleration)
+            .field("linked_particles", &self.linked_particles)
+            .finish()
+    }
+}
+
 impl PartialEq for Particle {
     /// Check if this [`Particle`] is considered equivalent to another
     /// [`Particle`], returning `true` if and only if they have the same [`id`].
@@ -50,20 +84,18 @@ impl Hash for Particle {
 }
 
 impl Particle {
-    /// Create a new [`Particle`] with a mass of 1.0 kg, position of (0.0, 0.0,
-    /// 0.0), velocity of <0.0, 0.0, 0.0> m/s, acceleration of <0.0, 0.0, 0.0>
-    /// m/s², and no linked particles.
+    /// Create a new [`Particle`] based on the given
     ///
     /// The value stored in [`PARTICLE_COUNTER`] will increment by one (1) after
     /// calling.
-    pub fn new() -> Particle {
+    fn new(builder: ParticleBuilder) -> Particle {
         Particle {
             id: PARTICLE_COUNTER.fetch_add(1, Ordering::SeqCst),
-            mass: 1.0,
-            position: vec![0.0, 0.0, 0.0],
-            velocity: vec![0.0, 0.0, 0.0],
-            acceleration: vec![0.0, 0.0, 0.0],
-            linked_particles: HashMap::new(),
+            mass: builder.mass,
+            position: builder.position,
+            velocity: builder.velocity,
+            acceleration: builder.acceleration,
+            linked_particles: builder.linked_particles,
         }
     }
 
@@ -147,5 +179,19 @@ impl ParticleBuilder {
     /// [`linked_particles`]: Particle::linked_particles
     pub fn add_linked_particle(mut self, particle: Particle, spring_constant: f64) {
         self.linked_particles.insert(particle, spring_constant);
+    }
+
+    /// Attempts to instantiate a new [`Particle`] object using the current
+    /// values of [`mass`], [`position`], [`velocity`], [`acceleration`], and
+    /// [`linked_particles`]. If any fields are not valid, return an
+    /// [`BuilderError`].
+    ///
+    /// [`mass`]: Particle::mass
+    /// [`position`]: Particle::position
+    /// [`velocity`]: Particle::velocity
+    /// [`acceleration`]: Particle::acceleration
+    /// [`linked_particles`]: Particle::linked_particles
+    pub fn build(self) -> Result<Particle, BuilderError> {
+        Ok(Particle::new(self))
     }
 }
