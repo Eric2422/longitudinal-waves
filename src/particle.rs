@@ -8,7 +8,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BuilderError {
-    #[error("Mass {0}, but should be positive.")]
+    #[error("Mass of {0} kg, but it should be positive.")]
     Mass(f64),
 
     #[error(
