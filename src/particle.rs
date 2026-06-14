@@ -1,33 +1,19 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-use thiserror::Error;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 
-#[derive(Error, Debug)]
-pub enum BuilderError {
-    #[error("Mass {0}, but should be positive.")]
-    Mass(f64),
+/// Counter for the [`id`] property of the [`Particle`] class.
+///
+/// [`id`]: Particle::id
+static PARTICLE_COUNTER: AtomicU32 = AtomicU32::new(0);
 
-    #[error(
-        "{:?} was linked to {:?} with spring constant {} N/m, but the spring constant should be positive.",
-        0,
-        1,
-        2
-    )]
-    Spring(Particle, Particle, f64),
-}
-
-
-/// Counter for the [`id`](Particle::id) property of the [`Particle`] class.
-static PARTICLE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 /// A single particle in a longitudinal wave, each connected to other particles
 /// by linear springs.
 pub struct Particle {
-    id: usize,
+    id: u32,
     /// The mass of this particle in kilograms (kg).
     mass: f64,
     /// The position of this particle in meters (m) as a vector in 3D space.
@@ -139,7 +125,9 @@ impl ParticleBuilder {
         }
     }
 
-    /// Set the [`mass`] of the [`Particle`] in kilograms (kg).
+    /// Set the [`mass`] of the [`Particle`] in kilograms (kg). If the given new
+    /// value for [`mass`] is non-positive (i.e., [`mass`] < 0.0 kg), the
+    /// current [`mass`] remains unchanged.
     ///
     /// [`mass`]: Particle::mass
     pub fn set_mass(mut self, mass: f64) {
@@ -191,11 +179,7 @@ impl ParticleBuilder {
     /// [`velocity`]: Particle::velocity
     /// [`acceleration`]: Particle::acceleration
     /// [`linked_particles`]: Particle::linked_particles
-    pub fn build(self) -> Result<Particle, BuilderError> {
-        if self.mass < 0.0 {
-            Err(BuilderError::Mass(self.mass))
-        } else {
-            Ok(Particle::new(self))
-        }
+    pub fn build(self) -> Particle {
+        Particle::new(self)
     }
 }
