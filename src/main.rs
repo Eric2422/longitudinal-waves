@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{env, fs};
 
-use crate::particle::ParticleBuilder;
+use crate::particle::{Particle, ParticleBuilder};
 
 mod particle;
 
@@ -9,7 +9,8 @@ mod particle;
 /// Store the parameters given in an input JSON file.
 #[derive(Serialize, Deserialize)]
 pub struct InputJson {
-    dimensions: [u32; 3],
+    dimensions: [usize; 3],
+    distance: f64,
     mass: f64,
     spring_constant: f64,
 }
@@ -30,5 +31,26 @@ fn main() {
         Err(_) => panic!("Error: File `{}` is malformatted.", &args[1]),
     };
 
-    let particle = ParticleBuilder::new().set_mass(input_json.mass).build();
+    // Create a grid of identical particles.
+    let mut particles: Vec<Vec<Vec<Particle>>> = Vec::new();
+    for x in 0..input_json.dimensions[0] {
+        particles.push(Vec::new());
+
+        for y in 0..input_json.dimensions[1] {
+            particles[x].push(Vec::new());
+
+            for z in 0..input_json.dimensions[2] {
+                particles[x][y].push(
+                    ParticleBuilder::new()
+                        .set_mass(input_json.mass)
+                        .set_position(
+                            (x as f64) * input_json.distance,
+                            (y as f64) * input_json.distance,
+                            (z as f64) * input_json.distance,
+                        )
+                        .build(),
+                );
+            }
+        }
+    }
 }
