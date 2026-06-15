@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{env, fs};
 
-use crate::particle::ParticleBuilder;
+use crate::particle::{Particle, ParticleBuilder};
 
 mod particle;
 
@@ -9,7 +9,8 @@ mod particle;
 /// Store the parameters given in an input JSON file.
 #[derive(Serialize, Deserialize)]
 pub struct InputJson {
-    dimensions: Vec<u32>,
+    dimensions: [usize; 3],
+    distance: f64,
     mass: f64,
     spring_constant: f64,
 }
@@ -30,18 +31,26 @@ fn main() {
         Err(_) => panic!("Error: File `{}` is malformatted.", &args[1]),
     };
 
-    // If the number of dimensions provided is less than 3, pad the end with 1
-    // (i.e., there is 1 particle in that dimension).
-    let mut dimensions: [u32; 3] = [1, 1, 1];
-    if input_json.dimensions.len() < 3 {
-        println!("Warning: Less than 3 dimensions provided. Assuming 1 for missing dimensions.");
-    }
-    for i in 0..2 {
-        if input_json.dimensions.len() > i + 1 {
-            dimensions[i] = input_json.dimensions[i]
+    // Create a grid of identical particles.
+    let mut particles: Vec<Vec<Vec<Particle>>> = Vec::new();
+    for x in 0..input_json.dimensions[0] {
+        particles.push(Vec::new());
+
+        for y in 0..input_json.dimensions[1] {
+            particles[x].push(Vec::new());
+
+            for z in 0..input_json.dimensions[2] {
+                particles[x][y].push(
+                    ParticleBuilder::new()
+                        .set_mass(input_json.mass)
+                        .set_position(
+                            (x as f64) * input_json.distance,
+                            (y as f64) * input_json.distance,
+                            (z as f64) * input_json.distance,
+                        )
+                        .build(),
+                );
+            }
         }
     }
-
-    let spring_constant = input_json.spring_constant;
-    let particle = ParticleBuilder::new().set_mass(input_json.mass).build();
 }
