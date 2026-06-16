@@ -34,6 +34,12 @@ pub struct InputJson {
     driving_frequency: f64,
 }
 
+fn update_particles(particles: &mut Vec<Vec<Vec<Particle>>>, input_json: &InputJson) {
+    for y in 0..particles[0].len() {
+        for z in 0..particles[0][y].len() {
+        }
+    }
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
