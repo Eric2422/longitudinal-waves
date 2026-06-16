@@ -9,10 +9,22 @@ mod particle;
 /// Store the parameters given in an input JSON file.
 #[derive(Serialize, Deserialize)]
 pub struct InputJson {
+    /// The number of [`Particle`]s in each direction: x, y, and z.
     dimensions: [usize; 3],
+    /// The distance between [`Particle`]s in each direction. Measured in meters
+    /// (m).
     distance: [f64; 3],
+    /// The mass of each individual [`Particle`] in kilograms (kg).
     mass: f64,
+    /// The spring constant between each pair of particles. Measured in meters
+    /// (m).
     spring_constant: f64,
+    /// The amplitude of the driving force as a 3D vector measured in in newtons
+    /// (N).
+    driving_amplitude: [f64; 3],
+    /// The angular frequency of the driving force in radians per second
+    /// (rad/s).
+    driving_frequency: f64,
 }
 
 
