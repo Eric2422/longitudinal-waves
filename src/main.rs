@@ -23,6 +23,9 @@ pub struct InputJson {
     /// The spring constant between each pair of particles. Measured in meters
     /// (m).
     spring_constant: f64,
+    /// The damping coefficient of the springs in newton-seconds per meter
+    /// (N⋅s⋅m⁻¹).
+    damping: f64,
     /// The amplitude of the driving force as a 3D vector measured in in newtons
     /// (N).
     driving_amplitude: [f64; 3],
