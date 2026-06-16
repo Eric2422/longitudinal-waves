@@ -9,6 +9,10 @@ mod particle;
 /// Store the parameters given in an input JSON file.
 #[derive(Serialize, Deserialize)]
 pub struct InputJson {
+    /// Size of each time step in seconds (s).
+    time_step_size: f64,
+    /// The number of time steps to run.
+    num_time_steps: u32,
     /// The number of [`Particle`]s in each direction: x, y, and z.
     dimensions: [usize; 3],
     /// The distance between [`Particle`]s in each direction. Measured in meters
