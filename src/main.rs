@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{env, fs};
+use std::{array, env, fs};
 
 use crate::particle::{Particle, ParticleBuilder};
 
@@ -36,7 +36,25 @@ pub struct InputJson {
     driving_phase: f64,
 }
 
-/// Multiply a 3D vector by a scalar value, returning the product.
+/// Add two 3D vectors together, returning the vector sum. *Neither* of the
+/// original arrays are modified.
+///
+/// # Examples
+///
+/// ```rust
+/// // Returns [4, 4, 4].
+/// let array_sum = add_3d_vectors([1, 2, 3], [3, 2, 1]);
+/// ```
+fn add_3d_vectors(array1: [f64; 3], array2: [f64; 3]) -> [f64; 3] {
+    [
+        array1[0] + array2[0],
+        array1[1] + array2[1],
+        array1[2] + array2[2],
+    ]
+}
+
+/// Multiply a 3D vector by a scalar value, returning the product. The original
+/// array is *not* modified.
 ///
 /// # Examples
 ///
@@ -44,13 +62,13 @@ pub struct InputJson {
 /// // Returns [10, 20, 30].
 /// let new_array = multiply_array_scalar([1, 2, 3], 10);
 /// ```
-fn multiply_array_scalar(array: [f64; 3], scalar: f64) -> [f64; 3] {
-    return [array[0] * scalar, array[1] * scalar, array[2] * scalar];
+fn multiply_3d_vector_by_scalar(array: [f64; 3], scalar: f64) -> [f64; 3] {
+    [array[0] * scalar, array[1] * scalar, array[2] * scalar]
 }
 
-
-/// Update the current [`acceleration`], [`velocity`], and [`position`] of the [`Particle`]s.
-/// 
+/// Update the current [`acceleration`], [`velocity`], and [`position`] of the
+/// [`Particle`]s.
+///
 /// [`acceleration`]: Particle::acceleration
 /// [`velocity`]: Particle::velocity
 /// [`position`]: Particle::position
@@ -59,7 +77,7 @@ fn update_particles(
     input_json: &InputJson,
     current_time_step: f64,
 ) {
-    let current_force = multiply_array_scalar(
+    let current_force = multiply_3d_vector_by_scalar(
         input_json.driving_amplitude,
         (input_json.driving_frequency * input_json.time_step_size * current_time_step
             + input_json.driving_phase)
