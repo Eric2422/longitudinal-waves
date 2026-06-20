@@ -6,7 +6,7 @@
 ///
 /// ```rust
 /// // Returns [4, 4, 4].
-/// let array_sum = add_3d_vectors([1, 2, 3], [3, 2, 1]);
+/// let array_sum = add_vectors([1, 2, 3], [3, 2, 1]);
 /// ```
 pub fn add_vectors(vector1: [f64; 3], vector2: [f64; 3]) -> [f64; 3] {
     [
@@ -23,7 +23,7 @@ pub fn add_vectors(vector1: [f64; 3], vector2: [f64; 3]) -> [f64; 3] {
 ///
 /// ```rust
 /// // Returns [10, 20, 30].
-/// let new_array = multiply_array_scalar([1, 2, 3], 10);
+/// let new_array = multiply_vector_by_scalar([1, 2, 3], 10);
 /// ```
 pub fn multiply_vector_by_scalar(vector: [f64; 3], scalar: f64) -> [f64; 3] {
     [vector[0] * scalar, vector[1] * scalar, vector[2] * scalar]
