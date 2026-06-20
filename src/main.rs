@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
-use std::{array, env, fs};
+use std::{env, fs};
 
 use crate::particle::{Particle, ParticleBuilder};
 
 mod particle;
+mod array_math;
 
 
 /// Store the parameters given in an input JSON file.
@@ -12,58 +13,28 @@ pub struct InputJson {
     /// Size of each time step in seconds (s).
     time_step_size: f64,
     /// The total number of time steps to run.
-    total_num_time_steps: u32,
+    total_time_steps: u32,
     /// The number of [`Particle`]s in each direction: x, y, and z.
     dimensions: [usize; 3],
-    /// The distance between [`Particle`]s in each direction. Measured in meters
-    /// (m).
+    /// The distance between [`Particle`]s in each direction.
+    /// Measured in meters (m).
     distance: [f64; 3],
     /// The mass of each individual [`Particle`] in kilograms (kg).
     mass: f64,
-    /// The spring constant between each pair of particles. Measured in meters
-    /// (m).
+    /// The spring constant between each pair of particles,
+    /// measured in newtons per meter (N/m).
     spring_constant: f64,
-    /// The damping coefficient of the springs in newton-seconds per meter
-    /// (N⋅s⋅m⁻¹).
+    /// The damping coefficient of the springs
+    /// in newton-seconds per meter (N⋅s⋅m⁻¹).
     damping: f64,
-    /// The amplitude of the driving force as a 3D vector measured in in newtons
-    /// (N).
+    /// The amplitude of the driving force as a 3D vector
+    /// measured in newtons (N).
     driving_amplitude: [f64; 3],
-    /// The angular frequency of the driving force in radians per second
-    /// (rad/s).
+    /// The angular frequency of the driving force
+    /// in radians per second (rad/s).
     driving_frequency: f64,
     /// The phase shift of the driving force, which is a dimensionless value.
     driving_phase: f64,
-}
-
-/// Add two 3D vectors together, returning the vector sum. *Neither* of the
-/// original arrays are modified.
-///
-/// # Examples
-///
-/// ```rust
-/// // Returns [4, 4, 4].
-/// let array_sum = add_3d_vectors([1, 2, 3], [3, 2, 1]);
-/// ```
-fn add_3d_vectors(array1: [f64; 3], array2: [f64; 3]) -> [f64; 3] {
-    [
-        array1[0] + array2[0],
-        array1[1] + array2[1],
-        array1[2] + array2[2],
-    ]
-}
-
-/// Multiply a 3D vector by a scalar value, returning the product. The original
-/// array is *not* modified.
-///
-/// # Examples
-///
-/// ```rust
-/// // Returns [10, 20, 30].
-/// let new_array = multiply_array_scalar([1, 2, 3], 10);
-/// ```
-fn multiply_3d_vector_by_scalar(array: [f64; 3], scalar: f64) -> [f64; 3] {
-    [array[0] * scalar, array[1] * scalar, array[2] * scalar]
 }
 
 /// Update the current [`acceleration`], [`velocity`], and [`position`] of the
@@ -75,18 +46,20 @@ fn multiply_3d_vector_by_scalar(array: [f64; 3], scalar: f64) -> [f64; 3] {
 fn update_particles(
     particles: &mut Vec<Vec<Vec<Particle>>>,
     input_json: &InputJson,
-    current_time_step: f64,
+    current_time: f64,
 ) {
-    let current_force = multiply_3d_vector_by_scalar(
+    // Calculate the current force given by a sinusoidal driving force.
+    let current_force = array_math::multiply_array_by_scalar(
         input_json.driving_amplitude,
-        (input_json.driving_frequency * input_json.time_step_size * current_time_step
-            + input_json.driving_phase)
-            .cos(),
+        (input_json.driving_frequency * current_time + input_json.driving_phase).cos(),
     );
 
+    // Set the acceleration based on the driving force.
+    // The forces from any springs will be added later.
     for y in 0..particles[0].len() {
         for z in 0..particles[0][y].len() {
-            particles[0][y][z].acceleration = current_force;
+            particles[0][y][z].acceleration =
+                array_math::multiply_array_by_scalar(current_force, 1.0 / particles[0][y][z].mass);
         }
     }
 }
@@ -127,5 +100,9 @@ fn main() {
                 );
             }
         }
+    }
+
+    for i in 0..input_json.total_time_steps {
+        let time = (i as f64) * input_json.time_step_size;
     }
 }
