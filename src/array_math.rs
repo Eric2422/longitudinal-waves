@@ -31,6 +31,22 @@ pub fn multiply_array_by_scalar(array: [f64; 3], scalar: f64) -> [f64; 3] {
     [array[0] * scalar, array[1] * scalar, array[2] * scalar]
 }
 
+/// Divide a 3D vector by a scalar value, returning the dividend. The original
+/// array is *not* modified.
+///
+/// It is prefereable to use this function rather than use
+/// [`multiply_array_by_scalar()`] with the scalar inverse due to floating point
+/// error.
+///
+/// # Examples
+/// ```rust
+/// // Returns approximately [2, 4, 6]
+/// divide_array_by_scalar([10, 20, 30], 5)
+/// ```
+pub fn divide_array_by_scalar(array: [f64; 3], scalar: f64) -> [f64; 3] {
+    [array[0] / scalar, array[1] / scalar, array[2] / scalar]
+}
+
 /// Calculate the magnitude of the given 3D vector.
 ///
 /// # Examples
