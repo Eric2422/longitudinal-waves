@@ -5,7 +5,16 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 
 /// A 3D vector with x, y, and z values.
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub struct Vector3d(f64, f64, f64);
+pub struct Vector3d(pub f64, pub f64, pub f64);
+
+
+/// Unpacks a three-element [`f64`] array into a [`Vector3d`].
+#[macro_export]
+macro_rules! vector_3d {
+    ($array:expr) => {
+        Vector3d($array[0], $array[1], $array[2])
+    };
+}
 
 impl Add for Vector3d {
     type Output = Vector3d;
@@ -131,7 +140,7 @@ impl Div<f64> for Vector3d {
 
 impl DivAssign<f64> for Vector3d {
     /// Divide this [3D vector] by a scalar, *mutating it in the process*.
-    /// 
+    ///
     /// [3D vector]: Vector3d
     fn div_assign(&mut self, rhs: f64) {
         self.0 /= rhs;

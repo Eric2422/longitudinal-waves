@@ -3,6 +3,8 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::sync::atomic::{AtomicU32, Ordering};
 
+use crate::vector3d::Vector3d;
+
 
 /// Counter for the [`id`] property of the [`Particle`] class.
 ///
@@ -17,12 +19,12 @@ pub struct Particle {
     /// The mass of this particle in kilograms (kg).
     pub mass: f64,
     /// The position of this particle as a 3D vector in meters (m).
-    position: [f64; 3],
+    position: Vector3d,
     /// The velocity of this particle as a 3D vector in meters per second (m/s).
-    velocity: [f64; 3],
+    velocity: Vector3d,
     /// The acceleration of this particle as a 3D vector
     /// in meters per second squared (m/s²).
-    pub acceleration: [f64; 3],
+    pub acceleration: Vector3d,
     /// The particles that this particle is linked to by springs
     /// mapped onto the respective spring constants in newtons per meters (N/m).
     linked_particles: HashMap<Particle, f64>,
@@ -98,7 +100,7 @@ impl Particle {
             mass: builder.mass,
             position: builder.position,
             velocity: builder.velocity,
-            acceleration: [0.0, 0.0, 0.0],
+            acceleration: Vector3d(0.0, 0.0, 0.0),
             linked_particles: builder.linked_particles,
         };
 
@@ -126,8 +128,8 @@ impl Particle {
 /// [`id`]: Particle::id
 pub struct ParticleBuilder {
     mass: f64,
-    position: [f64; 3],
-    velocity: [f64; 3],
+    position: Vector3d,
+    velocity: Vector3d,
     linked_particles: HashMap<Particle, f64>,
 }
 
@@ -138,8 +140,8 @@ impl ParticleBuilder {
     pub fn new() -> ParticleBuilder {
         ParticleBuilder {
             mass: 1.0,
-            position: [0.0, 0.0, 0.0],
-            velocity: [0.0, 0.0, 0.0],
+            position: Vector3d(0.0, 0.0, 0.0),
+            velocity: Vector3d(0.0, 0.0, 0.0),
             linked_particles: HashMap::new(),
         }
     }
@@ -182,7 +184,7 @@ impl ParticleBuilder {
     ///
     /// [`position`]: Particle::position
     pub fn set_position(mut self, x: f64, y: f64, z: f64) -> ParticleBuilder {
-        self.position = [x, y, z];
+        self.position = Vector3d(x, y, z);
         self
     }
 
@@ -203,7 +205,7 @@ impl ParticleBuilder {
     ///
     /// [`velocity`]: Particle::velocity
     pub fn set_velocity(mut self, x: f64, y: f64, z: f64) -> ParticleBuilder {
-        self.velocity = [x, y, z];
+        self.velocity = Vector3d(x, y, z);
         self
     }
 

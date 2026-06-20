@@ -2,9 +2,11 @@ use std::{env, fs};
 
 use serde::{Deserialize, Serialize};
 
-mod vector3d;
+use crate::vector3d::Vector3d;
+
 mod particle;
 use crate::particle::{Particle, ParticleBuilder};
+mod vector3d;
 
 /// Store the parameters given in an input JSON file.
 #[derive(Serialize, Deserialize)]
@@ -48,17 +50,14 @@ fn update_particles(
     current_time: f64,
 ) {
     // Calculate the current force given by a sinusoidal driving force.
-    let current_force = vector3d::multiply_array_by_scalar(
-        input_json.driving_amplitude,
-        (input_json.driving_frequency * current_time + input_json.driving_phase).cos(),
-    );
+    let current_force = vector_3d!(input_json.driving_amplitude)
+        * (input_json.driving_frequency * current_time + input_json.driving_phase).cos();
 
     // Set the acceleration based on the driving force.
     // The forces from any springs will be added later.
     for y in 0..particles[0].len() {
         for z in 0..particles[0][y].len() {
-            particles[0][y][z].acceleration =
-                vector3d::divide_array_by_scalar(current_force, particles[0][y][z].mass);
+            particles[0][y][z].acceleration = current_force / particles[0][y][z].mass;
         }
     }
 }
