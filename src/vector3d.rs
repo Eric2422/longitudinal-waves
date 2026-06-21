@@ -1,10 +1,7 @@
 //! Module of functions to perform calculations on would be considered 3D
 //! vectors in physics, but three-element arrays in Rust
 
-use std::{
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
-    sync::mpsc::RecvTimeoutError,
-};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 
 /// A 3D vector with x, y, and z values.
