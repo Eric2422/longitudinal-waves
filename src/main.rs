@@ -1,11 +1,10 @@
-use serde::{Deserialize, Serialize};
 use std::{env, fs};
 
-use crate::particle::{Particle, ParticleBuilder};
+use serde::{Deserialize, Serialize};
 
-mod particle;
 mod array_math;
-
+mod particle;
+use crate::particle::{Particle, ParticleBuilder};
 
 /// Store the parameters given in an input JSON file.
 #[derive(Serialize, Deserialize)]
@@ -59,7 +58,7 @@ fn update_particles(
     for y in 0..particles[0].len() {
         for z in 0..particles[0][y].len() {
             particles[0][y][z].acceleration =
-                array_math::multiply_array_by_scalar(current_force, 1.0 / particles[0][y][z].mass);
+                array_math::divide_array_by_scalar(current_force, particles[0][y][z].mass);
         }
     }
 }
