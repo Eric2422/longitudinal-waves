@@ -226,6 +226,8 @@ fn main() {
 
     check_input_json(input_file, &mut input_json);
 
+    println!("Passed all checks");
+
     // Create a grid of identical particles.
     let mut particles: Vec<Vec<Vec<Particle>>> = Vec::new();
     for x in 0..input_json.dimensions[0] {
