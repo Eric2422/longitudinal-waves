@@ -1,4 +1,3 @@
-use core::panic;
 use std::path::{Path, PathBuf};
 use std::{cmp, env, fs};
 
@@ -40,33 +39,76 @@ pub struct InputJson {
     driving_phase: f64,
 }
 
-/// Check for various illogical input JSON settings.
-fn check_input_json(input_file: &Path, input_json: &mut InputJson) {
+/// Checks for various illogical input JSON settings.
+/// Correct time step size, mass, and spring constant to [`f64::MIN_POSITIVE`]
+/// if 0.0.
+/// Negate time step size, mass, spring constant, damping, and spring lengths if
+/// negative.
+fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     // Check for values that can not accept 0.
-    if input_json.time_step_size <= 0.0 {
-        panic!(
-            "ERROR: The time step size given in {:?} is {} s, but it should be positive.",
-            input_file, input_json.time_step_size
+    // If so, set it to be the minimum positive value.
+    if input_json.time_step_size == 0.0 {
+        println!(
+            "WARNING: The time step size given in {:?} is 0.0 s, but it should be non-zero.
+            Setting to the smallest positive value {} s.",
+            input_file_path,
+            f64::MIN_POSITIVE
         );
+        input_json.time_step_size = f64::MIN_POSITIVE;
     }
-    if input_json.mass <= 0.0 {
-        panic!(
-            "ERROR: The mass given in {:?} is {} kg, but it should be positive.",
-            input_file, input_json.mass
+    if input_json.mass == 0.0 {
+        println!(
+            "WARNING: The mass given in {:?} is 0.0 kg, but it should be non-zero.
+            Setting to the smallest positive value {} kg.",
+            input_file_path,
+            f64::MIN_POSITIVE
         );
+        input_json.mass = f64::MIN_POSITIVE;
     }
-    if input_json.spring_constant <= 0.0 {
-        panic!(
-            "ERROR: The spring constant given in {:?} is {} N/m, but it should be positive.",
-            input_file, input_json.spring_constant
+    if input_json.spring_constant == 0.0 {
+        println!(
+            "WARNING: The spring constant given in {:?} is 0.0 N/m, but it should be non-zero.
+            Setting to the smallest positive value {} N/m.",
+            input_file_path,
+            f64::MIN_POSITIVE
         );
+        input_json.spring_constant = f64::MIN_POSITIVE;
     }
 
-    // Set to positive if negative.
+    // For values that cannot accept a negative value, flip it to be positive.
+    if input_json.time_step_size < 0.0 {
+        println!(
+            "WARNING: The time step size given in {:?} is {} s, but it should be positive.
+            Assuming a positive value of {} s.",
+            input_file_path, input_json.time_step_size, -input_json.time_step_size
+        );
+        input_json.time_step_size = -input_json.time_step_size;
+    }
+    if input_json.mass < 0.0 {
+        println!(
+            "WARNING: The mass given in {:?} is {} kg, but it should be positive.
+            Assuming a positive value of {} kg.",
+            input_file_path,
+            input_json.mass,
+            f64::MIN_POSITIVE
+        );
+        input_json.mass = f64::MIN_POSITIVE;
+    }
+    if input_json.spring_constant < 0.0 {
+        println!(
+            "ERROR: The spring constant given in {:?} is {} N/m, but it should be positive.
+            Assuming a positive value of {} N/m.",
+            input_file_path,
+            input_json.spring_constant,
+            f64::MIN_POSITIVE
+        );
+        input_json.spring_constant = f64::MIN_POSITIVE;
+    }
     if input_json.damping < 0.0 {
         println!(
-            "WARNING: The damping given in {:?} is {} N⋅s⋅m⁻¹, but it should be non-negative.\nAssuming a positive value of {} N⋅s⋅m⁻¹.",
-            input_file, input_json.damping, -input_json.damping
+            "WARNING: The damping given in {:?} is {} N⋅s⋅m⁻¹, but it should be non-negative.
+            Assuming a positive value of {} N⋅s⋅m⁻¹.",
+            input_file_path, input_json.damping, -input_json.damping
         );
         input_json.damping = -input_json.damping;
     }
@@ -75,8 +117,9 @@ fn check_input_json(input_file: &Path, input_json: &mut InputJson) {
         || input_json.spring_lengths[2] < 0.0
     {
         println!(
-            "WARNING: The springs lengths given in {:?} are {:?} m, but they should be non-negative.\nAssuming positive values of {:?} m.",
-            input_file,
+            "WARNING: The springs lengths given in {:?} are {:?} m, but they should be non-negative.
+            Assuming positive values of {:?} m.",
+            input_file_path,
             input_json.spring_lengths,
             -vector_3d!(input_json.spring_lengths)
         );
@@ -86,7 +129,7 @@ fn check_input_json(input_file: &Path, input_json: &mut InputJson) {
     }
 }
 
-/// Calculate the total spring force from the surrounding [`Particle`]s acting
+/// Calculates the total spring force from the surrounding [`Particle`]s acting
 /// upon the [`Particle`] at `particle_indices in `particles`.
 fn calculate_spring_force(
     particles: &mut Vec<Vec<Vec<Particle>>>,
@@ -155,7 +198,7 @@ fn calculate_spring_force(
     total_force
 }
 
-/// Update the current [`acceleration`], [`velocity`], and [`position`] of the
+/// Updates the current [`acceleration`], [`velocity`], and [`position`] of the
 /// [`Particle`]s.
 ///
 /// [`acceleration`]: Particle::acceleration
@@ -216,8 +259,8 @@ fn main() {
     }
 
     let input_file = Path::new(&args[1]);
-    // Automatically generate the output file to have the same name but to be a .txt
-    // file in output/
+    // Automatically generate the output file to have the same name
+    // but to be a .txt file in `output/`.
     let output_file: PathBuf = [
         "output",
         input_file
