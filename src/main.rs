@@ -1,3 +1,4 @@
+use core::panic;
 use std::path::{Path, PathBuf};
 use std::{cmp, env, fs};
 
@@ -37,6 +38,52 @@ pub struct InputJson {
     driving_frequency: f64,
     /// The phase shift of the driving force, which is a dimensionless value.
     driving_phase: f64,
+}
+
+/// Check for various illogical input JSON settings.
+fn check_input_json(input_file: &Path, input_json: &mut InputJson) {
+    // Check for values that can not accept 0.
+    if input_json.time_step_size <= 0.0 {
+        panic!(
+            "ERROR: The time step size given in {:?} is {} s, but it should be positive.",
+            input_file, input_json.time_step_size
+        );
+    }
+    if input_json.mass <= 0.0 {
+        panic!(
+            "ERROR: The mass given in {:?} is {} kg, but it should be positive.",
+            input_file, input_json.mass
+        );
+    }
+    if input_json.spring_constant <= 0.0 {
+        panic!(
+            "ERROR: The spring constant given in {:?} is {} N/m, but it should be positive.",
+            input_file, input_json.spring_constant
+        );
+    }
+
+    // Set to positive if negative.
+    if input_json.damping < 0.0 {
+        println!(
+            "WARNING: The damping given in {:?} is {} N⋅s⋅m⁻¹, but it should be non-negative.\nAssuming a positive value of {} N⋅s⋅m⁻¹.",
+            input_file, input_json.damping, -input_json.damping
+        );
+        input_json.damping = -input_json.damping;
+    }
+    if input_json.spring_lengths[0] < 0.0
+        || input_json.spring_lengths[1] < 0.0
+        || input_json.spring_lengths[2] < 0.0
+    {
+        println!(
+            "WARNING: The springs lengths given in {:?} are {:?} m, but they should be non-negative.\nAssuming positive values of {:?} m.",
+            input_file,
+            input_json.spring_lengths,
+            -vector_3d!(input_json.spring_lengths)
+        );
+        input_json.spring_lengths[0] = (input_json.spring_lengths[0]).abs();
+        input_json.spring_lengths[1] = (input_json.spring_lengths[1]).abs();
+        input_json.spring_lengths[2] = (input_json.spring_lengths[2]).abs();
+    }
 }
 
 /// Calculate the total spring force from the surrounding [`Particle`]s acting
@@ -152,7 +199,7 @@ fn main() {
 
     if args.len() < 2 {
         panic!(
-            "Error: No input file provided. Usage: `./target/debug/longitudinal_waves.exe input/<file name>`"
+            "ERROR: No input file provided. Usage: `./target/debug/longitudinal_waves.exe input/<file name>`"
         );
     }
 
@@ -162,19 +209,21 @@ fn main() {
     let file_contents = match fs::read_to_string(input_file) {
         Ok(file_contents) => file_contents,
         Err(_) => panic!(
-            "Error: File `{:?}` could not be read. Check if the file exists.",
+            "ERROR: File `{:?}` could not be read. Check if the file exists.",
             input_file
         ),
     };
 
     // Attempt to parse the file into usable data.
-    let input_json: InputJson = match serde_json::from_str(&file_contents) {
+    let mut input_json: InputJson = match serde_json::from_str(&file_contents) {
         Ok(input_json) => input_json,
         Err(_) => panic!(
-            "Error: File `{}` is malformatted. Check to make sure that it is properly formatted as given by the sample.",
+            "ERROR: File `{}` is malformatted. Check to make sure that it is properly formatted as given by the sample.",
             &args[1]
         ),
     };
+
+    check_input_json(input_file, &mut input_json);
 
     // Create a grid of identical particles.
     let mut particles: Vec<Vec<Vec<Particle>>> = Vec::new();
