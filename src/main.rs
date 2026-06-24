@@ -88,21 +88,17 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
         println!(
             "WARNING: The mass given in {:?} is {} kg, but it should be positive.
             Assuming a positive value of {} kg.",
-            input_file_path,
-            input_json.mass,
-            f64::MIN_POSITIVE
+            input_file_path, input_json.mass, -input_json.mass
         );
-        input_json.mass = f64::MIN_POSITIVE;
+        input_json.mass = -input_json.mass;
     }
     if input_json.spring_constant < 0.0 {
         println!(
             "ERROR: The spring constant given in {:?} is {} N/m, but it should be positive.
             Assuming a positive value of {} N/m.",
-            input_file_path,
-            input_json.spring_constant,
-            f64::MIN_POSITIVE
+            input_file_path, input_json.spring_constant, -input_json.spring_constant
         );
-        input_json.spring_constant = f64::MIN_POSITIVE;
+        input_json.spring_constant = -input_json.spring_constant;
     }
     if input_json.damping < 0.0 {
         println!(
