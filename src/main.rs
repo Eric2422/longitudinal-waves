@@ -264,7 +264,7 @@ fn main() {
         OUTPUT_DIR_STRING,
         input_file_path
             .with_extension("txt")
-            .file_stem()
+            .file_name()
             .unwrap_or_else(|| {
                 panic!("ERROR: Input file name {input_file_path:?} is an invalid OS string.")
             })
@@ -278,7 +278,9 @@ fn main() {
 
     // Attempt to retreive the contents of the file.
     let file_contents = fs::read_to_string(input_file_path).unwrap_or_else(|_| {
-        panic!("ERROR: File `{input_file_path:?}` could not be read. Try checking if the file exists.")
+        panic!(
+            "ERROR: File `{input_file_path:?}` could not be read. Try checking if the file exists."
+        )
     });
 
     // Attempt to parse the file into usable data.
