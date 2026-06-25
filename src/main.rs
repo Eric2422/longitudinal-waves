@@ -55,7 +55,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.time_step_size == 0.0 {
         println!(
             "Warning: The time step size given in {input_file_path:?} is 0.0 s, but it should be non-zero.
-            Setting to the smallest positive value {} s.",
+Setting to the smallest positive value {} s.",
             f64::MIN_POSITIVE
         );
         input_json.time_step_size = f64::MIN_POSITIVE;
@@ -63,7 +63,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.mass == 0.0 {
         println!(
             "Warning: The mass given in {input_file_path:?} is 0.0 kg, but it should be non-zero.
-            Setting to the smallest positive value {} kg.",
+Setting to the smallest positive value {} kg.",
             f64::MIN_POSITIVE
         );
         input_json.mass = f64::MIN_POSITIVE;
@@ -71,7 +71,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.spring_constant == 0.0 {
         println!(
             "Warning: The spring constant given in {input_file_path:?} is 0.0 N/m, but it should be non-zero.
-            Setting to the smallest positive value {} N/m.",
+Setting to the smallest positive value {} N/m.",
             f64::MIN_POSITIVE
         );
         input_json.spring_constant = f64::MIN_POSITIVE;
@@ -81,7 +81,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.time_step_size < 0.0 {
         println!(
             "Warning: The time step size given in {input_file_path:?} is {} s, but it should be positive.
-            Assuming a positive value of {} s.",
+Assuming a positive value of {} s.",
             input_json.time_step_size,
             -input_json.time_step_size
         );
@@ -90,7 +90,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.mass < 0.0 {
         println!(
             "Warning: The mass given in {input_file_path:?} is {} kg, but it should be positive.
-            Assuming a positive value of {} kg.",
+Assuming a positive value of {} kg.",
             input_json.mass, -input_json.mass
         );
         input_json.mass = -input_json.mass;
@@ -98,7 +98,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.spring_constant < 0.0 {
         println!(
             "ERROR: The spring constant given in {input_file_path:?} is {} N/m, but it should be positive.
-            Assuming a positive value of {} N/m.",
+Assuming a positive value of {} N/m.",
             input_json.spring_constant,
             -input_json.spring_constant
         );
@@ -107,7 +107,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     if input_json.damping < 0.0 {
         println!(
             "Warning: The damping given in {input_file_path:?} is {} N⋅s⋅m⁻¹, but it should be non-negative.
-            Assuming a positive value of {} N⋅s⋅m⁻¹.",
+Assuming a positive value of {} N⋅s⋅m⁻¹.",
             input_json.damping, -input_json.damping
         );
         input_json.damping = -input_json.damping;
@@ -118,7 +118,7 @@ fn check_input_json(input_file_path: &Path, input_json: &mut InputJson) {
     {
         println!(
             "Warning: The springs lengths given in {input_file_path:?} are {:?} m, but they should be non-negative.
-            Assuming positive values of {:?} m.",
+Assuming positive values of {:?} m.",
             input_json.spring_lengths,
             -vector_3d!(input_json.spring_lengths)
         );
@@ -278,7 +278,7 @@ fn main() {
 
     // Attempt to retreive the contents of the file.
     let file_contents = fs::read_to_string(input_file_path).unwrap_or_else(|_| {
-        panic!("ERROR: File `{input_file_path:?}` could not be read. Check if the file exists.")
+        panic!("ERROR: File `{input_file_path:?}` could not be read. Try checking if the file exists.")
     });
 
     // Attempt to parse the file into usable data.
@@ -303,7 +303,7 @@ fn main() {
         .unwrap_or_else(|_| {
             panic!(
                 "ERROR: Unable to create or open {:?}.
-                Try checking if the output/ directory exists.",
+Try checking if the output/ directory exists.",
                 output_file_path
             );
         });
