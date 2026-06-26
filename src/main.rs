@@ -334,13 +334,18 @@ Try checking if the output/ directory exists.",
     }
 
     // Run the time steps.
-    for i in 0..input_json.total_time_steps {
-        let current_time = (i as f64) * input_json.time_step_size;
-
-        writeln!(output_file, "\nt = {current_time:?}").unwrap_or_else(|_| {
+    let mut current_time = 0.0;
+    for i in 0..=input_json.total_time_steps {
+        writeln!(output_file, "\nTime step {i}, t = {current_time:?} s").unwrap_or_else(|_| {
             println!("WARNING: Failed to write to {output_file_path:?}.");
         });
 
-        update_particles(&mut particles, &input_json, current_time);
+        current_time += input_json.time_step_size;
+
+        // Omit the calculations from the last step
+        // since they will never be written anyway.
+        if i < input_json.total_time_steps {
+            update_particles(&mut particles, &input_json, current_time);
+        }
     }
 }
