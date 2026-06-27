@@ -1,7 +1,10 @@
 //! Module of functions to perform calculations on would be considered 3D
 //! vectors in physics, but three-element arrays in Rust
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+};
 
 /// A 3D vector with x, y, and z values.
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -158,6 +161,12 @@ impl DivAssign<f64> for Vector3d {
         self.0 /= rhs;
         self.1 /= rhs;
         self.2 /= rhs;
+    }
+}
+
+impl Display for Vector3d {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {})", self.0, self.1, self.2)
     }
 }
 
