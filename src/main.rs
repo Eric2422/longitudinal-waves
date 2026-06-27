@@ -219,11 +219,15 @@ fn calculate_spring_force(
 }
 
 /// Updates the current [`acceleration`], [`velocity`], and [`position`] of the
-/// [`Particle`]s.
+/// [`Particle`]s. 
+/// 
+/// If the value in `output_file` is [`None`], no output will be written.
+/// If it is [`Some`], output will written to the given [`File`].
 ///
 /// [`acceleration`]: Particle::acceleration
 /// [`velocity`]: Particle::velocity
 /// [`position`]: Particle::position
+/// [`File`]: fs::File
 fn update_particles(
     particles: &mut Vec<Vec<Vec<Particle>>>,
     input_json: &InputJson,
