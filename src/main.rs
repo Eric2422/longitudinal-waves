@@ -266,9 +266,11 @@ fn update_particles(
                 let velocity = particles[x][y][z].velocity;
                 particles[x][y][z].position += velocity * input_json.time_step_size;
 
+                // To avoid having to loop through again,
+                // output the `Particle` states to a file.
                 match output_file {
                     Some(ref mut output_file) => {
-                        writeln!(output_file, "{:?}", particles[x][y][z]).unwrap_or_else(|_| {})
+                        writeln!(output_file, "{}", particles[x][y][z]).unwrap_or_else(|_| {})
                     }
                     None => {}
                 }

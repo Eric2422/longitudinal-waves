@@ -1,7 +1,7 @@
 //! Module to represent [`Particle`]s in a longitudinal wave.
 
 use std::collections::HashMap;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -30,19 +30,6 @@ pub struct Particle {
     linked_particles: HashMap<Particle, f64>,
 }
 
-impl Debug for Particle {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Particle")
-            .field("id", &self.id)
-            .field("mass", &self.mass)
-            .field("position", &self.position)
-            .field("velocity", &self.velocity)
-            .field("acceleration", &self.acceleration)
-            .field("linked_particles", &self.linked_particles)
-            .finish()
-    }
-}
-
 impl Clone for Particle {
     /// Create a deep copy of this [`Particle`] except for the [`id`] property,
     /// which still increments by 1, similarly to [`Particle::new()`].
@@ -57,6 +44,29 @@ impl Clone for Particle {
             acceleration: self.acceleration.clone(),
             linked_particles: self.linked_particles.clone(),
         }
+    }
+}
+
+impl Debug for Particle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Particle")
+            .field("id", &self.id)
+            .field("mass", &self.mass)
+            .field("position", &self.position)
+            .field("velocity", &self.velocity)
+            .field("acceleration", &self.acceleration)
+            .field("linked_particles", &self.linked_particles)
+            .finish()
+    }
+}
+
+impl Display for Particle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Particle {}: m = {} kg, r = {} m, v = {} m/s, a = {} m/s²",
+            self.id, self.mass, self.position, self.velocity, self.acceleration
+        )
     }
 }
 
@@ -76,12 +86,6 @@ impl PartialEq for Particle {
     /// [`id`]: Particle::id
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
-    }
-}
-
-impl ToString for Particle {
-    fn to_string(&self) -> String {
-        format!("{}, {:?}", self.mass, self.position)
     }
 }
 
