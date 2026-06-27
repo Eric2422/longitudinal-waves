@@ -219,8 +219,8 @@ fn calculate_spring_force(
 }
 
 /// Updates the current [`acceleration`], [`velocity`], and [`position`] of the
-/// [`Particle`]s. 
-/// 
+/// [`Particle`]s.
+///
 /// If the value in `output_file` is [`None`], no output will be written.
 /// If it is [`Some`], output will written to the given [`File`].
 ///
@@ -248,6 +248,8 @@ fn update_particles(
                     input_json.spring_lengths,
                     input_json.spring_constant,
                 );
+
+                total_force -= input_json.damping * particles[x][y][z].velocity;
 
                 // Add the driving force to particles at the start end.
                 if x == 0 {
