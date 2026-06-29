@@ -11,3 +11,4 @@ license = "MIT"
 nalgebra = "0.35.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
+uom = "0.38.0"
