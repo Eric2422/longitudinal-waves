@@ -6,14 +6,21 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-use uom;
+use uom::{
+    self,
+    si::{Dimension, Quantity, SI},
+};
 
 /// A 3D vector with x, y, and z values.
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
-pub struct Vector3d {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+pub struct Vector3d<D: Dimension>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    pub x: Quantity<D, SI<f64>, f64>,
+    pub y: Quantity<D, SI<f64>, f64>,
+    pub z: Quantity<D, SI<f64>, f64>,
 }
 
 /// Either converts a three-element [`f64`] array into a [3D vector]
@@ -39,8 +46,12 @@ macro_rules! vector3d {
     };
 }
 
-impl Add for Vector3d {
-    type Output = Vector3d;
+impl<D> Add for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Vector3d<D>;
 
     /// Adds two [3D vector]s together, returning the [vector] sum.
     /// *Neither* of the original [vector]s are modified.
@@ -71,7 +82,11 @@ impl Add for Vector3d {
     }
 }
 
-impl AddAssign for Vector3d {
+impl<D> AddAssign for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
     /// Adds another [3D vector] to this [vector].
     ///
     /// [3D vector]: Vector3d
@@ -83,8 +98,12 @@ impl AddAssign for Vector3d {
     }
 }
 
-impl Neg for Vector3d {
-    type Output = Vector3d;
+impl<D> Neg for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Vector3d<D>;
 
     /// Returns the negative of this [3D vector].
     ///
@@ -98,8 +117,12 @@ impl Neg for Vector3d {
     }
 }
 
-impl Sub for Vector3d {
-    type Output = Vector3d;
+impl<D> Sub for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Vector3d<D>;
 
     /// Returns the difference between this [3D vector] and another [3D vector].
     /// *Neither* of the original [vector]s are modified.
@@ -115,7 +138,11 @@ impl Sub for Vector3d {
     }
 }
 
-impl SubAssign for Vector3d {
+impl<D> SubAssign for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
     /// Subtract another [3D vector] from this [vector].
     ///
     /// [3D vector]: Vector3d
@@ -127,8 +154,12 @@ impl SubAssign for Vector3d {
     }
 }
 
-impl Mul<f64> for Vector3d {
-    type Output = Vector3d;
+impl<D> Mul<f64> for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Vector3d<D>;
 
     /// Returns the product between this [3D vector] and a scalar.
     ///
@@ -150,22 +181,30 @@ impl Mul<f64> for Vector3d {
     }
 }
 
-impl Mul<Vector3d> for f64 {
-    type Output = Vector3d;
+impl<D> Mul<Vector3d<D>> for Quantity<D, uom::si::SI<f64>, f64>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Vector3d<D>;
 
     /// Returns the product between this scalar and a [3D vector].
     ///
     /// [3D vector]: Vector3d
-    fn mul(self, rhs: Vector3d) -> Self::Output {
+    fn mul(self, rhs: Vector3d<D>) -> Self::Output {
         Vector3d {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
+            x: self * rhs.x.value,
+            y: self * rhs.y.value,
+            z: self * rhs.z.value,
         }
     }
 }
 
-impl MulAssign<f64> for Vector3d {
+impl<D> MulAssign<f64> for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
     /// Multiply this [`Vector3d`] by a scalar, *mutating it in the process*.
     fn mul_assign(&mut self, rhs: f64) {
         self.x *= rhs;
@@ -174,19 +213,31 @@ impl MulAssign<f64> for Vector3d {
     }
 }
 
-impl Mul<Vector3d> for Vector3d {
-    type Output = f64;
+impl<D> Mul<Vector3d<D>> for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Quantity<D, uom::si::SI<f64>, f64>;
 
     /// Return the dot product of this [3D vector] and another [3D vector].
     ///
     /// [3D vector]: Vector3d
-    fn mul(self, rhs: Vector3d) -> Self::Output {
+    fn mul(self, rhs: Vector3d<D>) -> Self::Output
+    where
+        D: Dimension,
+        <D as Dimension>::Kind: uom::Kind,
+    {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 }
 
-impl Div<f64> for Vector3d {
-    type Output = Vector3d;
+impl<D> Div<f64> for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
+    type Output = Vector3d<D>;
 
     /// Return the result of this [3D vector] divided by a scalar, without
     /// mutating the [3D vector].
@@ -214,7 +265,11 @@ impl Div<f64> for Vector3d {
     }
 }
 
-impl DivAssign<f64> for Vector3d {
+impl<D> DivAssign<f64> for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
     /// Divide this [3D vector] by a scalar, *mutating it in the process*.
     ///
     /// [3D vector]: Vector3d
@@ -225,19 +280,30 @@ impl DivAssign<f64> for Vector3d {
     }
 }
 
-impl Display for Vector3d {
+impl<D> Display for Vector3d<D>
+where
+    D: Dimension,
+    <D as Dimension>::Kind: uom::Kind,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+        write!(f, "({:?}, {:?}, {:?})", self.x, self.y, self.z)
     }
 }
 
-impl Vector3d {
+impl<D> Vector3d<D>
+where
+    D: Dimension + Sized + uom::ConstZero,
+    <D as Dimension>::Kind: uom::Kind,
+    <D as Dimension>::Kind: Sized,
+{
     /// Return the zero vector, i.e., `Vector3d {x: 0.0, y: 0.0, z: 0.0}`.
-    pub fn zero() -> Vector3d {
+    pub fn zero() -> Vector3d<D> {
         Vector3d {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+            // The default value should 0.0, but is highly fragile.
+            // TODO: Replace with something more stable.
+            x: Default::default(),
+            y: Default::default(),
+            z: Default::default(),
         }
     }
 
@@ -251,14 +317,17 @@ impl Vector3d {
     /// // Returns approximately 5.0.
     /// Vector3d { x: 3, y: 4, z: 0 }
     /// ```
-    pub fn get_magnitude(&self) -> f64 {
-        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+    pub fn get_magnitude(&self) -> D {
+        (self.x.powi(uom::typenum::P2::new())
+            + self.y.powi(uom::typenum::P2::new())
+            + self.z.powi(uom::typenum::P2::new()))
+        .sqrt()
     }
 
     /// Return the normalized unit vector of this [3D vector].
     ///
     /// [3D vector]: Vector3d
-    pub fn get_normalized(&self) -> Vector3d {
+    pub fn get_normalized(&self) -> Vector3d<D> {
         *self / self.get_magnitude()
     }
 }

@@ -8,7 +8,7 @@ use std::{
 };
 
 use uom::si::{
-    f64::{Length, Mass},
+    f64::{Acceleration, Length, Mass, Velocity},
     mass::kilogram,
 };
 
@@ -26,12 +26,12 @@ pub struct Particle {
     /// The mass of this particle in kilograms (kg).
     pub mass: Mass,
     /// The position of this particle as a 3D vector in meters (m).
-    pub position: Vector3d,
+    pub position: Vector3d<Length>,
     /// The velocity of this particle as a 3D vector in meters per second (m/s).
-    pub velocity: Vector3d,
+    pub velocity: Vector3d<Velocity>,
     /// The acceleration of this particle as a 3D vector
     /// in meters per second squared (m/s²).
-    pub acceleration: Vector3d,
+    pub acceleration: Vector3d<Acceleration>,
     /// The particles that this particle is linked to by springs
     /// mapped onto the respective spring constants in newtons per meters (N/m).
     linked_particles: HashMap<Particle, f64>,
@@ -119,8 +119,8 @@ impl Particle {
 #[derive(Default)]
 pub struct ParticleBuilder {
     mass: Mass,
-    position: Vector3d,
-    velocity: Vector3d,
+    position: Vector3d<Length>,
+    velocity: Vector3d<Velocity>,
     linked_particles: HashMap<Particle, f64>,
 }
 
