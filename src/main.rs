@@ -184,7 +184,7 @@ fn calculate_spring_force(
     let end_x = cmp::min(start_x + 3, particles.len());
 
     // Sum spring force from all neighboring particles.
-    let mut total_force = vector_3d!(0.0, 0.0, 0.0);
+    let mut spring_force = vector_3d!(0.0, 0.0, 0.0);
     for x in start_x..end_x {
         let end_y = cmp::min(start_y + 3, particles[x].len());
 
@@ -205,7 +205,7 @@ fn calculate_spring_force(
                     .get_magnitude();
 
                     // Apply Hooke's Law.
-                    total_force += -spring_constant
+                    spring_force += -spring_constant
                         * (distance_vector.get_magnitude() - rest_distance)
                         * distance_vector.get_normalized();
                 }
@@ -213,7 +213,7 @@ fn calculate_spring_force(
         }
     }
 
-    total_force
+    spring_force
 }
 
 /// Updates the current [`acceleration`], [`velocity`], and [`position`] of the
