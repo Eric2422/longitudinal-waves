@@ -4,14 +4,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use serde::{Deserialize, Serialize};
 use uom::{
     ConstZero,
     fmt::DisplayStyle::Abbreviation,
     si::{
         angle::radian,
         angular_velocity::radian_per_second,
-        f64::{Angle, AngularVelocity, Force, Length, Mass, MassRate, SurfaceTension, Time},
+        f64::{Length, Mass, MassRate, SurfaceTension, Time},
         force::newton,
         length::meter,
         mass::kilogram,
@@ -22,6 +21,7 @@ use uom::{
 };
 
 mod input_json;
+use crate::input_json::InputJson;
 mod particle;
 use crate::particle::{Particle, ParticleBuilder};
 mod vector3d;
@@ -31,48 +31,12 @@ use crate::vector3d::Vector3d;
 /// Alias for [`SurfaceTension`] to more accurately describe spring constants
 /// rather than surface tension, which are dimensionally equivalent.
 type SpringConstant = SurfaceTension;
-/// Alias for [`MassRate`]
-/// because the damping coefficient and rate of mass change
-/// are dimensionally equivalent,
-/// i.e., newton-seconds per meter or kilograms per second.
-type ViscousDamping = MassRate;
 
 
 /// The [`str`] representation of the output directory.
 /// A [`Path`] would be easier to work with,
 /// but [`Path`]s can not be instantiated statically.
 static OUTPUT_DIR_STRING: &str = "output";
-
-
-/// Store the parameters given in an input JSON file.
-#[derive(Serialize, Deserialize)]
-pub struct InputJson {
-    /// Size of each time step in seconds (s).
-    time_step_size: Time,
-    /// The total number of time steps to run.
-    total_time_steps: u32,
-    /// The number of [`Particle`]s in each direction: x, y, and z.
-    dimensions: [usize; 3],
-    /// The distance between [`Particle`]s in each direction.
-    /// Measured in meters (m).
-    spring_lengths: [Length; 3],
-    /// The mass of each individual [`Particle`] in kilograms (kg).
-    mass: Mass,
-    /// The spring constant between each pair of particles,
-    /// measured in newtons per meter (N/m).
-    spring_constant: SpringConstant,
-    /// The damping coefficient of the springs
-    /// in newton-seconds per meter (N⋅s⋅m⁻¹).
-    damping: ViscousDamping,
-    /// The amplitude of the driving force as a 3D vector
-    /// measured in newtons (N).
-    driving_amplitude: [Force; 3],
-    /// The angular frequency of the driving force
-    /// in radians per second (rad/s).
-    driving_angular_frequency: AngularVelocity,
-    /// The phase shift of the driving force, which is a dimensionless value.
-    driving_phase: Angle,
-}
 
 /// Checks for various illogical input JSON settings.
 /// Corrects time step size, mass, and spring constant to [`f64::MIN_POSITIVE`]
@@ -138,26 +102,6 @@ Assuming a positive value of {} kg.",
         input_json.mass = -input_json.mass;
         passed_all_checks = false;
     }
-    if input_json.spring_constant < SpringConstant::ZERO {
-        println!(
-            "Warning: The spring constant given in {input_file_path:?} is {} N/m, but it should be positive.
-Assuming a positive value of {} N/m.",
-            input_json.spring_constant.into_format_args(newton_per_meter, Abbreviation),
-            (-input_json.spring_constant).into_format_args(newton_per_meter, Abbreviation)
-        );
-        input_json.spring_constant = -input_json.spring_constant;
-        passed_all_checks = false;
-    }
-    if input_json.damping < MassRate::ZERO {
-        println!(
-            "Warning: The damping given in {input_file_path:?} is {} N⋅s⋅m⁻¹, but it should be non-negative.
-Assuming a positive value of {} N⋅s⋅m⁻¹.",
-            input_json.damping.into_format_args(kilogram_per_second, Abbreviation),
-            (-input_json.damping).into_format_args(kilogram_per_second, Abbreviation)
-        );
-        input_json.damping = -input_json.damping;
-        passed_all_checks = false;
-    }
     if input_json.spring_lengths[0] < Length::ZERO
         || input_json.spring_lengths[1] < Length::ZERO
         || input_json.spring_lengths[2] < Length::ZERO
@@ -179,6 +123,26 @@ Assuming a positive value of {} N⋅s⋅m⁻¹.",
             input_json.spring_lengths[2].get::<meter>()
         );
 
+        passed_all_checks = false;
+    }
+    if input_json.spring_constant < SpringConstant::ZERO {
+        println!(
+            "Warning: The spring constant given in {input_file_path:?} is {} N/m, but it should be positive.
+Assuming a positive value of {} N/m.",
+            input_json.spring_constant.into_format_args(newton_per_meter, Abbreviation),
+            (-input_json.spring_constant).into_format_args(newton_per_meter, Abbreviation)
+        );
+        input_json.spring_constant = -input_json.spring_constant;
+        passed_all_checks = false;
+    }
+    if input_json.damping < MassRate::ZERO {
+        println!(
+            "Warning: The damping given in {input_file_path:?} is {} N⋅s⋅m⁻¹, but it should be non-negative.
+Assuming a positive value of {} N⋅s⋅m⁻¹.",
+            input_json.damping.into_format_args(kilogram_per_second, Abbreviation),
+            (-input_json.damping).into_format_args(kilogram_per_second, Abbreviation)
+        );
+        input_json.damping = -input_json.damping;
         passed_all_checks = false;
     }
 
@@ -386,25 +350,10 @@ Try checking if the output/ directory exists."
         });
     writeln!(
         output_file,
-        "Input JSON: {}
-    Spring constant: {}
-    Driving parameters:
-        Amplitude: ({}, {}, {})
-        Angular Frequency: {}
-        Phase: {}",
-        &args[1],
-        input_json
-            .spring_constant
-            .into_format_args(newton_per_meter, Abbreviation),
-        input_json.driving_amplitude[0].into_format_args(newton, Abbreviation),
-        input_json.driving_amplitude[1].into_format_args(newton, Abbreviation),
-        input_json.driving_amplitude[2].into_format_args(newton, Abbreviation),
-        input_json
-            .driving_angular_frequency
-            .into_format_args(radian_per_second, Abbreviation),
-        input_json
-            .driving_phase
-            .into_format_args(radian, Abbreviation)
+        "\
+Input JSON: {}
+{}",
+        &args[1], input_json
     )
     .unwrap_or_else(|_| println!("Warning: Failed to write to {output_file_path:?}."));
 
